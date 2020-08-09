@@ -26,13 +26,14 @@ enum Verso: int{
 class ConfigParams
 {
     public:
-        static const int NMAXCHAR = 100;
-        static const int   DIMTABELLA=10;
-        static const int   DIMRIQUADRO=5;
-        static const int PRODMODE=false;
-        static const int NNAVI=2;
+        static const int    NMAXCHAR = 100;
+        static const int    DIMTABELLA=10;
+        static const int    DIMRIQUADRO=5;
+        static const int    PRODMODE=true;
+        static const int    NNAVI=2;
         static int* GETNAVI(){
-            static int ARNAVI[NNAVI]={1,1};
+            static int ARNAVI[NNAVI]={5,4};
+            // static int ARNAVI[NNAVI]={2,2,2,2,3,3,4,4,6};
             return ARNAVI;
         }
 
@@ -42,6 +43,10 @@ class Coordinate{
     public:
         int x;
         int y;
+        char getParsedX(){
+            char _x;
+            _x=x+65;
+        }
 };
 
 class Comando{
@@ -431,7 +436,7 @@ class Giocatore{
 
                     char* strRisposta=new char[100];
                     //leggo la risposta
-                    cout<<"Nave "<<i+1<<", (lunghezza: "<<ARNAVI[i]<<"): ";
+                    cout<<"Nave "<<i+1<<", (lunghezza: "<<ARNAVI[i]<<"): "<<endl<<">";
                     cin>>strRisposta;
                     //con la stringa risposta, creo il comando, e se c'è un errore lo recupero
                     comando= new ComandoInserimento(strRisposta);
@@ -502,7 +507,10 @@ class Giocatore{
             coordinate.y=rand()%ConfigParams::DIMTABELLA;
             return coordinate;
         }
-
+        
+        void debug(){
+            _tabella.debug();
+        }
 };
 
 
@@ -556,7 +564,7 @@ private:
                     giocatore1.show(false);
                     cout<<endl<<"# LE NAVI DEL TUO AVVERSARIO:"<<endl<<endl;
                     giocatore2.show(true);
-                    cout<<endl<<endl<<"Coordinate di fuoco: (Esempio: \"a,3\")"<<endl;
+                    cout<<endl<<endl<<"Coordinate di fuoco: (Esempio: \"a,3\")"<<endl<<">";
                     str=new char[ConfigParams::NMAXCHAR];
                     cin>>str;
                     ComandoSparo comando (str);
@@ -567,9 +575,13 @@ private:
                     delete(str);
                     if (errParsing){
                         cout<<"Attenzione, comando inserito non valido"<<endl;
+                        getchar();
+                        getchar();
                     }
                     else if (errShot){
-                        cout<<"Attenzione, non puoi sparare fuori dalla zona di combattimento"<<endl;
+                        cout<<"Attenzione, non puoi sparare qui"<<endl;
+                        getchar();
+                        getchar();
                     }
                 }while(errParsing||errShot);
                 if (!giocatore2.hasLost()){
@@ -585,7 +597,7 @@ private:
                         giocatore2.show(false);
                         cout<<endl<<"# LE NAVI DEL TUO AVVERSARIO:"<<endl<<endl;
                         giocatore1.show(true);
-                        cout<<endl<<endl<<"Coordinate di fuoco: (Esempio: \"a,3\")"<<endl;
+                        cout<<endl<<endl<<"Coordinate di fuoco: (Esempio: \"a,3\")"<<endl<<">";
                         str=new char[ConfigParams::NMAXCHAR];
                         cin>>str;
                         ComandoSparo comando (str);
@@ -596,9 +608,13 @@ private:
                         delete(str);
                         if (errParsing){
                             cout<<"Attenzione, comando inserito non valido"<<endl;
+                            getchar();
+                            getchar();
                         }
                         else if (errShot){
-                            cout<<"Attenzione, non puoi sparare fuori dalla zona di combattimento"<<endl;
+                            cout<<"Attenzione, non puoi sparare qui"<<endl;
+                            getchar();
+                            getchar();
                         }
                     }while(errParsing||errShot);
                 }
@@ -606,10 +622,11 @@ private:
             system("cls");
             cout<<"Partita terminata!";
             getchar();
+            getchar();
             system("cls");
-            cout<<"SCHIERAMENTO DEL GIOCATORE 1:"<<endl<<endl;
+            cout<<"SCHIERAMENTO DEL GIOCATORE 1:"<<endl;
             giocatore1.show(false);
-            cout<<"SCHIERAMENTO DEL GIOCATORE 2:"<<endl<<endl;
+            cout<<endl<<endl<<"SCHIERAMENTO DEL GIOCATORE 2:"<<endl;
             giocatore2.show(false);
             cout<<endl<<endl;
             if (giocatore1.hasLost())
@@ -619,7 +636,81 @@ private:
     }
     
     void _playPvCpu(){
-        //TODO Questa è da implementare
+        Giocatore giocatore1(1,false);
+        Giocatore giocatore2(2,true);
+        giocatore1.init();
+        giocatore2.init();
+        char* str;
+        do
+        {
+            bool errParsing;
+            bool errShot;
+            do{
+                errParsing=true;
+                errShot=true;
+                system("cls");
+                cout<<"################# Tocca a te..."<<endl<<endl<<endl;
+                giocatore2.debug();
+                cout<<"# LE TUE NAVI:"<<endl<<endl;
+                    giocatore1.show(false);
+                    cout<<endl<<"# LE NAVI DEL TUO AVVERSARIO:"<<endl<<endl;
+                    giocatore2.show(true);
+                    cout<<endl<<endl<<"Coordinate di fuoco: (Esempio: \"a,3\")"<<endl<<">";
+                    str=new char[ConfigParams::NMAXCHAR];
+                    cin>>str;
+                    ComandoSparo comando (str);
+                    errParsing=comando.error();
+                    if (!errParsing){
+                        errShot=giocatore2.isFired(comando.getX(),comando.getY());
+                    }
+                    delete(str);
+                    if (errParsing){
+                        cout<<"Attenzione, comando inserito non valido"<<endl;
+                        getchar();
+                        getchar();
+                    }
+                    else if (errShot){
+                        cout<<"Attenzione, non puoi sparare qui"<<endl;
+                        getchar();
+                        getchar();
+                    }
+
+            } while (errParsing||errShot);
+            if (!giocatore2.hasLost()){
+                int x;
+                int y;
+                errShot=true;
+                system("cls");
+                cout<<"################# Tocca a me..."<<endl<<endl;
+                getchar();
+                getchar();
+                do
+                {
+                    Coordinate sparo;
+                    sparo=giocatore2.getCpuShot();
+                    errShot=giocatore1.isFired(sparo.x,sparo.y);
+                    if (!errShot){
+                        cout<<">"<<sparo.getParsedX()<<" "<<sparo.y;
+                        getchar();
+                    }
+                } while (errShot);
+                
+            }
+        } while (!giocatore1.hasLost()&&!giocatore2.hasLost());
+        system("cls");
+        cout<<"Partita terminata!";
+        getchar();
+        system("cls");
+        cout<<"IL TUO SCHIERAMENTO:"<<endl;
+        giocatore1.show(false);
+        cout<<endl<<endl<<"LO SCHIERAMENTO AVVERSARIO:"<<endl;
+        giocatore2.show(false);
+        cout<<endl<<endl;
+        if (giocatore1.hasLost())
+            cout<<"############################## ANDRA' MEGLIO LA PROSSIMA VOLTA :( ##############################"<<endl;
+        else
+            cout<<"############################## COMPLIMENTI, HAI VINTO! ##############################"<<endl;
+        
     }
     void showHeader(){
         cout<<"###################################################################################################"<<endl;
@@ -631,7 +722,7 @@ private:
     void showMenu(){
         system ("cls");
         this->showHeader();
-        cout<<"Cosa vuoi fare?"<<endl<<endl<<"> PvP"<<endl<<"> PvCPU"<<endl<<"> ESCI"<<endl<<endl;
+        cout<<"Cosa vuoi fare?"<<endl<<endl<<"> PvP"<<endl<<"> PvCPU"<<endl<<"> ESCI"<<endl<<endl<<">";
         cin>>this->scelta;
     }
 

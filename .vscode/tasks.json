@@ -1,5 +1,4 @@
 {
-    "version": "2.0.0",
     "tasks": [
         {
             "type": "shell",
@@ -22,5 +21,6 @@
                 "isDefault": true
             }
         }
-    ]
+    ],
+    "version": "2.0.0"
 }
